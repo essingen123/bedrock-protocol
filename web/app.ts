@@ -1,109 +1,136 @@
-class BedrockVerifier {
+class BedrockApp {
     private bedrockHash: string | null = null;
-    private hashDisplay: HTMLElement;
-    private dropZone: HTMLElement;
-    private resultDisplay: HTMLElement;
+
+    // DOM Elements
+    private principleFilesInput: HTMLInputElement;
+    private generateHashBtn: HTMLButtonElement;
+    private bedrockHashDisplay: HTMLElement;
+    private artifactToSignInput: HTMLInputElement;
+    private signBtn: HTMLButtonElement;
+    private signatureOutput: HTMLElement;
+    private verifyDropZone: HTMLElement;
+    private verifyResult: HTMLElement;
 
     constructor() {
-        this.hashDisplay = document.getElementById('bedrock-hash')!;
-        this.dropZone = document.getElementById('drop-zone')!;
-        this.resultDisplay = document.getElementById('result')!;
+        this.principleFilesInput = document.getElementById('principle-files') as HTMLInputElement;
+        this.generateHashBtn = document.getElementById('generate-hash-btn') as HTMLButtonElement;
+        this.bedrockHashDisplay = document.getElementById('bedrock-hash-display')!;
+        this.artifactToSignInput = document.getElementById('artifact-to-sign') as HTMLInputElement;
+        this.signBtn = document.getElementById('sign-btn') as HTMLButtonElement;
+        this.signatureOutput = document.getElementById('signature-output')!;
+        this.verifyDropZone = document.getElementById('verify-drop-zone')!;
+        this.verifyResult = document.getElementById('verify-result')!;
         this.initEventListeners();
-        this.updateDropZoneState();
     }
 
     private initEventListeners(): void {
-        document.body.addEventListener('dragover', (e) => e.preventDefault());
-        document.body.addEventListener('drop', (e) => e.preventDefault());
+        this.generateHashBtn.addEventListener('click', this.generateBedrockHash.bind(this));
+        this.signBtn.addEventListener('click', this.signArtifact.bind(this));
+        
+        this.verifyDropZone.addEventListener('dragover', this.handleDragOver.bind(this));
+        this.verifyDropZone.addEventListener('dragleave', this.handleDragLeave.bind(this));
+        this.verifyDropZone.addEventListener('drop', this.handleVerifyDrop.bind(this));
+    }
 
-        this.hashDisplay.addEventListener('dragover', (e) => e.preventDefault());
-        this.hashDisplay.addEventListener('drop', this.handleHashDrop.bind(this));
+    private async sha256(buffer: ArrayBuffer): Promise<string> {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-        this.dropZone.addEventListener('dragover', this.handleDragOver.bind(this));
-        this.dropZone.addEventListener('dragleave', this.handleDragLeave.bind(this));
-        this.dropZone.addEventListener('drop', this.handleArtifactDrop.bind(this));
+    private readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as ArrayBuffer);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    async generateBedrockHash(): Promise<void> {
+        const files = this.principleFilesInput.files;
+        if (!files || files.length === 0) {
+            alert('Please select at least one principle file.');
+            return;
+        }
+
+        const fileBuffers = await Promise.all(Array.from(files).map(f => this.readFileAsArrayBuffer(f)));
+        const fileHashes = await Promise.all(fileBuffers.map(b => this.sha256(b)));
+        
+        const combinedHashes = fileHashes.sort().join('');
+        const combinedHashesBuffer = new TextEncoder().encode(combinedHashes);
+        
+        this.bedrockHash = await this.sha256(combinedHashesBuffer);
+        this.bedrockHashDisplay.textContent = this.bedrockHash;
+        this.signBtn.disabled = false;
+    }
+
+    async signArtifact(): Promise<void> {
+        if (!this.bedrockHash) {
+            alert('Generate a bedrock hash first.');
+            return;
+        }
+        const file = this.artifactToSignInput.files?.[0];
+        if (!file) {
+            alert('Please select an artifact to sign.');
+            return;
+        }
+
+        const artifactBuffer = await this.readFileAsArrayBuffer(file);
+        const artifactHash = await this.sha256(artifactBuffer);
+        
+        const signatureInput = artifactHash + this.bedrockHash;
+        const signatureInputBuffer = new TextEncoder().encode(signatureInput);
+        const signature = await this.sha256(signatureInputBuffer);
+
+        this.signatureOutput.innerHTML = `Signature generated. <a href="#" id="download-sig">Download ${file.name}.sig</a>`;
+        document.getElementById('download-sig')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.downloadFile(signature, `${file.name}.sig`, 'text/plain');
+        });
     }
     
-    private updateDropZoneState(): void {
-        const dropZoneText = this.dropZone.querySelector('p');
-        if (this.bedrockHash) {
-            this.dropZone.classList.remove('disabled');
-            if (dropZoneText) {
-                dropZoneText.textContent = 'Drag & Drop an artifact and its .sig file here';
-            }
-        } else {
-            this.dropZone.classList.add('disabled');
-            if (dropZoneText) {
-                dropZoneText.textContent = 'Load a bedrock.hash file above before verifying artifacts';
-            }
-        }
-    }
-
-    private async handleHashDrop(e: DragEvent): Promise<void> {
-        e.preventDefault();
-        e.stopPropagation();
-        const files = e.dataTransfer?.files;
-        if (files && files.length > 0) {
-            this.bedrockHash = (await files[0].text()).trim();
-            this.hashDisplay.textContent = this.bedrockHash;
-            this.resultDisplay.textContent = ''; 
-            this.updateDropZoneState();
-        }
+    private downloadFile(content: string, fileName: string, contentType: string) {
+        const a = document.createElement("a");
+        const file = new Blob([content], {type: contentType});
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(a.href);
     }
 
     private handleDragOver(e: DragEvent): void {
         e.preventDefault();
-        e.stopPropagation();
-        if (this.bedrockHash) {
-            this.dropZone.classList.add('dragover');
-        }
+        this.verifyDropZone.classList.add('dragover');
     }
 
     private handleDragLeave(): void {
-        this.dropZone.classList.remove('dragover');
+        this.verifyDropZone.classList.remove('dragover');
     }
 
-    private findFilePair(files: FileList): { artifactFile: File, sigFile: File } | null {
-        const fileArray = Array.from(files);
-        for (const potentialArtifact of fileArray) {
-            if (potentialArtifact.name.endsWith('.sig')) {
-                continue;
-            }
-            const expectedSigName = `${potentialArtifact.name}.sig`;
-            const sigFile = fileArray.find(f => f.name === expectedSigName);
-            if (sigFile) {
-                return { artifactFile: potentialArtifact, sigFile: sigFile };
-            }
-        }
-        return null;
-    }
-
-    private async handleArtifactDrop(e: DragEvent): Promise<void> {
+    private async handleVerifyDrop(e: DragEvent): Promise<void> {
         e.preventDefault();
-        e.stopPropagation();
-        this.dropZone.classList.remove('dragover');
-        this.resultDisplay.textContent = '';
+        this.verifyDropZone.classList.remove('dragover');
+        this.verifyResult.textContent = '';
 
         if (!this.bedrockHash) {
+            this.displayResult('Set a bedrock hash in step 1 first.', false);
             return;
         }
 
         const files = e.dataTransfer?.files;
-        if (!files || files.length === 0) {
+        if (!files || files.length < 2) {
+            this.displayResult('Drop both the artifact and its .sig file.', false);
             return;
         }
 
-        this.displayLoading('Verifying...');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        const artifactFile = Array.from(files).find(f => !f.name.endsWith('.sig'));
+        const sigFile = Array.from(files).find(f => f.name.endsWith('.sig'));
 
-        const filePair = this.findFilePair(files);
-
-        if (!filePair) {
-            this.displayResult('Could not find a matching artifact and .sig file pair (e.g., "file.txt" + "file.txt.sig").', false);
+        if (!artifactFile || !sigFile) {
+            this.displayResult('Could not find both artifact and .sig file.', false);
             return;
         }
-        
-        const { artifactFile, sigFile } = filePair;
 
         try {
             const artifactBuffer = await this.readFileAsArrayBuffer(artifactFile);
@@ -118,36 +145,16 @@ class BedrockVerifier {
             if (actualSignature === expectedSignature) {
                 this.displayResult(`VERIFIED: ${artifactFile.name}`, true);
             } else {
-                this.displayResult(`FAILED: Signature mismatch for ${artifactFile.name}`, false);
+                this.displayResult(`FAILED: ${artifactFile.name}`, false);
             }
         } catch (error) {
-            console.error('Verification Error:', error);
-            this.displayResult('An error occurred during verification.', false);
+            this.displayResult('Error during verification.', false);
         }
     }
 
-    private displayLoading(message: string): void {
-        this.resultDisplay.innerHTML = `<div class="loader"></div><span>${message}</span>`;
-    }
-
     private displayResult(message: string, isSuccess: boolean): void {
-        this.resultDisplay.innerHTML = `<span class="${isSuccess ? 'verified' : 'failed'}">${isSuccess ? '✅' : '❌'} ${message}</span>`;
-    }
-
-    private readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as ArrayBuffer);
-            reader.onerror = reject;
-            reader.readAsArrayBuffer(file);
-        });
-    }
-
-    private async sha256(buffer: ArrayBuffer): Promise<string> {
-        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        this.verifyResult.innerHTML = `<span class="${isSuccess ? 'verified' : 'failed'}">${isSuccess ? '✅' : '❌'} ${message}</span>`;
     }
 }
 
-new BedrockVerifier();
+new BedrockApp();

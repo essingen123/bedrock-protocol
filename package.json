@@ -1,21 +1,14 @@
 {
-  "name": "bedrock-protocol",
+  "name": "ethical-bedrock-protocol-web",
   "version": "1.0.0",
-  "description": "A lightweight protocol for creating cryptographically verifiable trust in software development.",
-  "main": "src/bedrock.js",
-  "bin": {
-    "bedrock": "src/cli.js"
-  },
+  "description": "A client-side web application for the Ethical Bedrock Hash Protocol.",
   "scripts": {
-    "start": "node src/cli.js",
-    "build:web": "esbuild web/app.ts --bundle --outfile=web/app.js --target=es2020"
+    "build": "esbuild web/app.ts --bundle --outfile=web/app.js --target=es2020",
+    "serve": "esbuild --servedir=web --target=es2020"
   },
   "keywords": ["ai", "ethics", "alignment", "trust", "cryptography", "aĩr"],
   "author": "AĩR Initiative",
   "license": "MIT",
-  "dependencies": {
-    "commander": "^9.4.1"
-  },
   "devDependencies": {
     "typescript": "^4.8.4",
     "esbuild": "^0.15.12"

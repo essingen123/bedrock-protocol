@@ -1,5 +1,5 @@
 {
-  "name": "Ethical Bedrock Hash Protocol",
-  "description": "A lightweight, open-source protocol for creating cryptographically verifiable trust in software development.",
+  "name": "Ethical Bedrock Protocol Web",
+  "description": "A client-side web application for the Ethical Bedrock Hash Protocol, allowing for in-browser hash generation, signing, and verification.",
   "requestFramePermissions": []
 }
