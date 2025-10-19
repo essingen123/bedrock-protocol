@@ -1,0 +1,15 @@
+body { background-color: #121212; color: #e0e0e0; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; box-sizing: border-box; }
+.container { max-width: 700px; width: 100%; text-align: center; }
+.card { background: #1e1e1e; padding: 1.5rem; margin-top: 1.5rem; border-radius: 8px; border: 1px solid #333; }
+h1, h2 { margin-top: 0; }
+p { color: #aaa; }
+button { background: #333; color: #fff; border: 1px solid #555; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.5rem; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+input[type="file"] { margin: 0.5rem; }
+.hash-display { background: #252525; padding: 1rem; border-radius: 4px; word-break: break-all; min-height: 40px; margin-top: 1rem; }
+.file-drop-zone { border: 2px dashed #444; padding: 2rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; margin-top: 1rem; }
+.file-drop-zone.dragover { background-color: #2a2a2a; }
+.result-display { margin-top: 1rem; font-size: 1.2rem; min-height: 1.5rem; }
+.verified { color: #4CAF50; }
+.failed { color: #F44336; }
+a { color: #64b5f6; }

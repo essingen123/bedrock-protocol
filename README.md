@@ -11,8 +11,8 @@ This tool brings the Ethical Bedrock Protocol directly to your browser. No backe
 ## Getting Started
 1.  Clone this repository.
 2.  Run `npm install` and then `npm run build`.
-3.  Open `web/index.html` in your browser.
-    *   (For live development, you can use a simple server. If you have `esbuild` installed globally, run `esbuild --servedir=web`).
+3.  Open `index.html` in your browser.
+    *   (For live development, you can use a simple server. If you have `esbuild` installed globally, run `esbuild --servedir=.`).
 ## Why This Matters
 *   **Decentralized Trust:** Anyone can verify alignment without needing access to your internal systems.
 *   **Extreme Portability:** Runs anywhere a modern web browser runs.
