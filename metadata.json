@@ -1,5 +1,5 @@
 {
-  "name": "Ethical Bedrock Hash Verifier",
-  "description": "A web-based tool to cryptographically verify software artifacts against a set of ethical principles using the Ethical Bedrock Hash Protocol. Drag and drop your bedrock.hash, artifact, and .sig file to verify.",
+  "name": "Ethical Bedrock Hash Protocol",
+  "description": "A lightweight, open-source protocol for creating cryptographically verifiable trust in software development.",
   "requestFramePermissions": []
 }
