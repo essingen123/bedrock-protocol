@@ -2,10 +2,6 @@
   "name": "ethical-bedrock-protocol-web",
   "version": "1.0.0",
   "description": "A client-side web application for the Ethical Bedrock Hash Protocol.",
-  "scripts": {
-    "build": "esbuild app.ts --bundle --outfile=app.js --target=es2020",
-    "serve": "esbuild --servedir=. --target=es2020"
-  },
   "keywords": ["ai", "ethics", "alignment", "trust", "cryptography", "aĩr"],
   "author": "AĩR Initiative",
   "license": "MIT",
