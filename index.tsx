@@ -88,10 +88,12 @@ const App = () => {
   const downloadSignature = () => {
       if (!signature) return;
       const a = document.createElement("a");
-      const file = new Blob([signature.content], { type: 'text/plain' });
-      a.href = URL.createObjectURL(file);
+      const fileBlob = new Blob([signature.content], { type: 'text/plain' });
+      a.href = URL.createObjectURL(fileBlob);
       a.download = signature.name;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
   };
   
@@ -119,9 +121,7 @@ const App = () => {
       return;
     }
 
-    // Fix: Explicitly type `f` as `File` to resolve type inference issues where it was treated as `unknown`.
     const artifactFile = Array.from(files).find((f: File) => !f.name.endsWith('.sig'));
-    // Fix: Explicitly type `f` as `File` to resolve type inference issues where it was treated as `unknown`.
     const sigFile = Array.from(files).find((f: File) => f.name.endsWith('.sig'));
 
     if (!artifactFile || !sigFile) {
@@ -182,7 +182,7 @@ const App = () => {
           </button>
           {signature && (
             <div id="signature-output">
-              Signature generated. <a href="#" onClick={downloadSignature}>Download {signature.name}</a>
+              Signature generated. <a href="#" onClick={(e) => {e.preventDefault(); downloadSignature();}}>Download {signature.name}</a>
             </div>
           )}
         </div>
@@ -196,7 +196,7 @@ const App = () => {
             onDragLeave={bedrockHash ? handleDragLeave : undefined}
             onDrop={bedrockHash ? handleVerifyDrop : undefined}
           >
-            {isVerifying ? <div className="loader"></div> : (bedrockHash ? 'Drag & Drop Files Here' : 'Generate hash in Step 1 first')}
+            {isVerifying ? <div className="loader"></div> : <p>{bedrockHash ? 'Drag & Drop Files Here' : 'Generate hash in Step 1 first'}</p>}
           </div>
           {verificationResult && (
              <div className="result-display">

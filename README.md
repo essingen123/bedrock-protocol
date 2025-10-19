@@ -8,15 +8,8 @@ This tool brings the Ethical Bedrock Protocol directly to your browser. No backe
 1.  **Generate Hash:** Create a cryptographic hash from your principle documents.
 2.  **Sign Artifacts:** Sign any file (e.g., source code, model weights, documents) against your hash.
 3.  **Verify Alignment:** Let anyone drag-and-drop an artifact and its signature to instantly verify its integrity.
-## Getting Started
-1.  Clone this repository.
-2.  Run `npm install` and then `npm run build`.
-3.  Open `index.html` in your browser.
-    *   (For live development, you can use a simple server. If you have `esbuild` installed globally, run `esbuild --servedir=.`).
-## Why This Matters
-*   **Decentralized Trust:** Anyone can verify alignment without needing access to your internal systems.
-*   **Extreme Portability:** Runs anywhere a modern web browser runs.
-*   **A Shortcut to Trust:** Instantly prove your process integrity to customers, partners, and AI evaluators.
+## How to Use
+Simply open this application in your browser to get started. All operations are performed locally on your machine.
 
 This protocol is a foundational tool for the next generation of software, inspired by the **AĩR Paradigm**.
 ---
