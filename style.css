@@ -1,9 +1,10 @@
 body { background-color: #121212; color: #e0e0e0; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; box-sizing: border-box; }
 .container { max-width: 700px; width: 100%; text-align: center; }
-.card { background: #1e1e1e; padding: 1.5rem; margin-top: 1.5rem; border-radius: 8px; border: 1px solid #333; }
+.card { background: #1e1e1e; padding: 1.5rem; margin-top: 1.5rem; border-radius: 8px; border: 1px solid #333; transition: opacity 0.3s; }
+.card.disabled { opacity: 0.4; pointer-events: none; }
 h1, h2 { margin-top: 0; }
 p { color: #aaa; }
-button { background: #333; color: #fff; border: 1px solid #555; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.5rem; }
+button { background: #333; color: #fff; border: 1px solid #555; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.5rem; min-width: 150px; height: 38px; display: inline-flex; justify-content: center; align-items: center; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 input[type="file"] { margin: 0.5rem; }
 .hash-display { background: #252525; padding: 1rem; border-radius: 4px; word-break: break-all; min-height: 40px; margin-top: 1rem; }
@@ -13,3 +14,18 @@ input[type="file"] { margin: 0.5rem; }
 .verified { color: #4CAF50; }
 .failed { color: #F44336; }
 a { color: #64b5f6; }
+#signature-output { margin-top: 1rem; }
+
+.loader {
+  border: 4px solid #333;
+  border-top: 4px solid #64b5f6;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
